@@ -1,13 +1,23 @@
 import pandas as pd
 import numpy
 from sklearn import svm
+from pathlib import Path
 
 counter = 0
-featureMatrixMother = numpy.array([])
 
-def TrainMother(Filepath):
+def TrainMother(featureVectorMother, featureMatrixMother):
     global counter
-    global featureMatrixMother
+
+    if counter == 0:
+        featureMatrixMother = numpy.concatenate([[featureVectorMother], [featureVectorMother]])
+    else:
+        featureMatrixMother = numpy.concatenate((featureMatrixMother, [featureVectorMother]), axis=0)
+
+    counter = counter + 1
+    return featureMatrixMother
+
+
+def PreProcess(Filepath):
     rawData = pd.read_csv(
         Filepath,
         sep=',', header=None)
@@ -20,7 +30,7 @@ def TrainMother(Filepath):
 
     diffNormRawData = numpy.diff(normRawData)
     for i in range(180 - len(diffNormRawData)):
-         diffNormRawData = numpy.append(diffNormRawData,[0])
+        diffNormRawData = numpy.append(diffNormRawData, [0])
     zeroCrossingArray = numpy.array([])
     maxDiffArray = numpy.array([])
 
@@ -55,35 +65,36 @@ def TrainMother(Filepath):
     featureVectorMother = numpy.append(featureVectorMother, zeroCrossingArray[index[0:5]])
     featureVectorMother = numpy.append(featureVectorMother, maxDiffArray[index[0:5]])
 
-    if counter == 0:
-        featureMatrixMother = numpy.concatenate([[featureVectorMother], [featureVectorMother]])
-    else:
-        featureMatrixMother = numpy.concatenate((featureMatrixMother, [featureVectorMother]), axis=0)
-
-    counter = counter + 1
-    return featureMatrixMother
-
-
+    return featureVectorMother
 
 
 def main():
-    from pathlib import Path
 
+    featureMatrixMother = numpy.array([])
     pathlist = Path('../traindatadummy/').glob('**/*.csv')
     for path in pathlist:
         path_in_str = str(path)
         print(path_in_str)
-        TrainMother(path_in_str)
+        featureVectorMother = PreProcess(path_in_str)
+        featureMatrixMother = TrainMother(featureVectorMother, featureMatrixMother)
 
     featureMatrixNotMother = featureMatrixMother - numpy.random.rand(5, 190)
     TrainingSamples = numpy.concatenate((featureMatrixMother, featureMatrixNotMother), axis=0)
-
     labelVector = [1, 1, 1, 1, 1, 0, 0, 0, 0, 0]
+    # labelVector = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    #                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    #                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    #                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    #                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    #                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    #                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    #                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     clf = svm.SVC()
     clf.fit(TrainingSamples, labelVector)
-
-    print(clf.predict([TrainingSamples[7]]))
+    TrainVectorMother = PreProcess('../testdata/MOTHER_PRACTISE_3_samal.csv')
+    TrainMatrixMother = numpy.concatenate([[TrainVectorMother]])
+    print(clf.predict(TrainMatrixMother))
     print("Finish")
 
 
