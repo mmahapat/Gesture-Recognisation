@@ -71,30 +71,36 @@ def PreProcess(Filepath):
 def main():
 
     featureMatrixMother = numpy.array([])
-    pathlist = Path('../traindatadummy/').glob('**/*.csv')
+    pathlist = Path('../traindata/').glob('**/*.csv')
     for path in pathlist:
         path_in_str = str(path)
-        print(path_in_str)
         featureVectorMother = PreProcess(path_in_str)
         featureMatrixMother = TrainMother(featureVectorMother, featureMatrixMother)
 
-    featureMatrixNotMother = featureMatrixMother - numpy.random.rand(5, 190)
+    featureMatrixNotMother = featureMatrixMother - numpy.random.rand(62, 190)
     TrainingSamples = numpy.concatenate((featureMatrixMother, featureMatrixNotMother), axis=0)
-    labelVector = [1, 1, 1, 1, 1, 0, 0, 0, 0, 0]
-    # labelVector = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    #                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    #                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    #                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    #                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    #                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    #                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    #                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    #labelVector = [1, 1, 1, 1, 1, 0, 0, 0, 0, 0]
+    labelVector = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     clf = svm.SVC()
     clf.fit(TrainingSamples, labelVector)
-    TrainVectorMother = PreProcess('../testdata/MOTHER_PRACTISE_3_samal.csv')
-    TrainMatrixMother = numpy.concatenate([[TrainVectorMother]])
-    print(clf.predict(TrainMatrixMother))
+    # TrainVectorMother = PreProcess('../testdata/MOTHER_PRACTISE_3_samal.csv')
+    # TrainMatrixMother = numpy.concatenate([[TrainVectorMother]])
+    # print(clf.predict(TrainMatrixMother))
+    pathlist_test = Path('../testdata/').glob('**/*.csv')
+    for path in pathlist_test:
+        TestVectorMother = PreProcess(path)
+        TestMatrixMother = numpy.concatenate([[TestVectorMother]])
+        print(clf.predict(TestMatrixMother))
+        print("Okay")
+
     print("Finish")
 
 
