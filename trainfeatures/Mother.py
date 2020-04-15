@@ -38,7 +38,7 @@ def PreProcess(Filepath):
     minimum = min(len(diffNormRawData), minimum)
     datasize = numpy.append(datasize, len(diffNormRawData))
     for i in range(180 - len(diffNormRawData)):
-        diffNormRawData = numpy.append(diffNormRawData, [0])
+        diffNormRawData = numpy.append(diffNormRawData, diffNormRawData[i])
     zeroCrossingArray = numpy.array([])
     maxDiffArray = numpy.array([])
 
@@ -87,19 +87,19 @@ def main():
         featureVectorMother = PreProcess(path_in_str)
         featureMatrixMother = TrainMother(featureVectorMother, featureMatrixMother)
 
-    counter = 0
-    featureMatrixNotMother = numpy.array([])
-    pathlistNotMother = Path('../notMother/').glob('**/*.csv')
-    for path in pathlistNotMother:
-        path_in_str = str(path)
-        featureVectorNotMother = PreProcess(path_in_str)
-        if featureVectorNotMother.size != 190:
-            print("Bad")
-        featureMatrixNotMother = TrainMother(featureVectorNotMother, featureMatrixNotMother)
+    # counter = 0
+    # featureMatrixNotMother = numpy.array([])
+    # pathlistNotMother = Path('../notMother/').glob('**/*.csv')
+    # for path in pathlistNotMother:
+    #     path_in_str = str(path)
+    #     featureVectorNotMother = PreProcess(path_in_str)
+    #     if featureVectorNotMother.size != 190:
+    #         print("Bad")
+    #     featureMatrixNotMother = TrainMother(featureVectorNotMother, featureMatrixNotMother)
 
 
 
-    #featureMatrixNotMother = featureMatrixMother - numpy.random.rand(60, 190)
+    featureMatrixNotMother = featureMatrixMother - numpy.random.rand(60, 190)
     TrainingSamples = numpy.concatenate((featureMatrixMother, featureMatrixNotMother), axis=0)
 
     labelVector = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -115,7 +115,7 @@ def main():
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-    clf = svm.SVC()
+    clf = svm.SVC(probability=True)
     clf.fit(TrainingSamples, labelVector)
     pathlist_test = Path('../testdata/').glob('**/*.csv')
     for path in pathlist_test:
@@ -124,6 +124,7 @@ def main():
         TestMatrixMother = numpy.concatenate([[TestVectorMother]])
         print(path)
         print(clf.predict(TestMatrixMother))
+        print(clf.predict_proba(TestMatrixMother))
         print("Okay")
 
     print("Finish")
