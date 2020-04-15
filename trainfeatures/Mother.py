@@ -91,13 +91,11 @@ def main():
 
     clf = svm.SVC()
     clf.fit(TrainingSamples, labelVector)
-    # TrainVectorMother = PreProcess('../testdata/MOTHER_PRACTISE_3_samal.csv')
-    # TrainMatrixMother = numpy.concatenate([[TrainVectorMother]])
-    # print(clf.predict(TrainMatrixMother))
     pathlist_test = Path('../testdata/').glob('**/*.csv')
     for path in pathlist_test:
         TestVectorMother = PreProcess(path)
         TestMatrixMother = numpy.concatenate([[TestVectorMother]])
+        print(path)
         print(clf.predict(TestMatrixMother))
         print("Okay")
 
