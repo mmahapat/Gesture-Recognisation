@@ -16,17 +16,16 @@ from sklearn import svm
 master_path = '../CSV'
 labels = numpy.empty((0, 0))
 column_to_drop = ["Frames#", "score_overall", "nose_score", "leftEye_score", "rightEye_score", "leftEar_score",
-                  "rightEar_score",
-                  "leftShoulder_score", "rightShoulder_score", "leftElbow_score", "rightElbow_score", "leftWrist_score",
+                  "rightEar_score", "leftShoulder_score", "rightShoulder_score", "leftElbow_score", "rightElbow_score",
+                  "leftWrist_score",
                   "rightWrist_score", "leftHip_score", "rightHip_score", "leftKnee_score", "rightKnee_score",
-                  "leftAnkle_score",
-                  "rightAnkle_score"]
+                  "leftAnkle_score", "rightAnkle_score", "leftHip_x", "leftHip_y", "rightHip_x",
+                  "rightHip_y", "leftKnee_x", "leftKnee_y", "rightKnee_x", "rightKnee_y", "leftAnkle_x",
+                  "leftAnkle_y", "rightAnkle_x", "rightAnkle_y"]
 columns_to_retain = ["nose_x", "nose_y", "leftEye_x", "leftEye_y", "rightEye_x", "rightEye_y", "leftEar_x", "leftEar_y",
                      "rightEar_x", "rightEar_y", "leftShoulder_x", "leftShoulder_y", "rightShoulder_x",
                      "rightShoulder_y", "leftElbow_x", "leftElbow_y", "rightElbow_x", "rightElbow_y", "leftWrist_x",
-                     "leftWrist_y", "rightWrist_x", "rightWrist_y", "leftHip_x", "leftHip_y", "rightHip_x",
-                     "rightHip_y", "leftKnee_x", "leftKnee_y", "rightKnee_x", "rightKnee_y", "leftAnkle_x",
-                     "leftAnkle_y", "rightAnkle_x", "rightAnkle_y"]
+                     "leftWrist_y", "rightWrist_x", "rightWrist_y"]
 arr = numpy.empty((0, 52), float)
 total_rows = 150
 final_data = pd.DataFrame()
@@ -74,7 +73,7 @@ labels = pickle.load(open('labelsPickle', 'rb'))
 scaler = preprocessing.StandardScaler()
 scaler.fit(result)
 scaled_result = scaler.transform(result)
-pca = decomposition.PCA(n_components=25)
+pca = decomposition.PCA(n_components=14)
 pca.fit(scaled_result)
 pca_result = pca.transform(scaled_result)
 test_size = 0.33
@@ -101,7 +100,7 @@ print("Training using KNeighbour Classifier...")
 knn = KNeighborsClassifier(n_neighbors=200)
 knn.fit(X_train, Y_train)
 y_pred = knn.predict(X_test)
-knnPickle = open('../models/knnpickle_file', 'wb')
+knnPickle = open('../models/model_2', 'wb')
 # source, destination
 pickle.dump(knn, knnPickle)
 
@@ -113,7 +112,7 @@ print("Training using Random Forest Classifier...")
 rf = RandomForestClassifier(max_depth=10, random_state=0)
 rf.fit(X_train, Y_train)
 y_pred = rf.predict(X_test)
-rfPickle = open('../models/rfpickle_file', 'wb')
+rfPickle = open('../models/model_3', 'wb')
 pickle.dump(rf, rfPickle)
 
 print("Random Forest Accuracy: %.3f%%" % (metrics.accuracy_score(Y_test, y_pred) * 100))
@@ -124,7 +123,7 @@ print("Training using SVC with linear kernel...")
 linearCLF = svm.SVC(kernel='linear')
 linearCLF.fit(X_train, Y_train)
 yPred = linearCLF.predict(X_test)
-linearPickle = open("../models/linearSVC_file.pkl", "wb")
+linearPickle = open("../models/model_4", "wb")
 pickle.dump(linearCLF, linearPickle)
 
 print("Linear SVC Accuracy: %.3f%%" % (metrics.accuracy_score(Y_test, y_pred) * 100));

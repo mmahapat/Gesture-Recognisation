@@ -35,13 +35,13 @@ def json_to_csv(json_data):
 
 
 def get_reduced_bbject(inputObject):
-    column_to_drop = ["score_overall", "nose_score", "leftEye_score", "rightEye_score", "leftEar_score",
-                      "rightEar_score",
-                      "leftShoulder_score", "rightShoulder_score", "leftElbow_score", "rightElbow_score",
-                      "leftWrist_score",
-                      "rightWrist_score", "leftHip_score", "rightHip_score", "leftKnee_score", "rightKnee_score",
-                      "leftAnkle_score",
-                      "rightAnkle_score"]
+    column_to_drop = ["Frames#", "score_overall", "nose_score", "leftEye_score", "rightEye_score", "leftEar_score",
+                      "rightEar_score", "leftShoulder_score", "rightShoulder_score", "leftElbow_score",
+                      "rightElbow_score", "leftWrist_score", "rightWrist_score", "leftHip_score", "rightHip_score",
+                      "leftKnee_score", "rightKnee_score",
+                      "leftAnkle_score", "rightAnkle_score", "leftHip_x", "leftHip_y", "rightHip_x",
+                      "rightHip_y", "leftKnee_x", "leftKnee_y", "rightKnee_x", "rightKnee_y", "leftAnkle_x",
+                      "leftAnkle_y", "rightAnkle_x", "rightAnkle_y"]
     total_rows = 150
     inputObject.drop(column_to_drop, axis=1, inplace=True)
     print(inputObject.shape)
@@ -72,19 +72,19 @@ def get_prediction():
     prediction_by_model = {}
     predicted_data = get_reduced_bbject(csv_data)
     print(predicted_data.shape)
-    loaded_model = pickle.load(open('./models/decision_tree', 'rb'))
+    loaded_model = pickle.load(open('./models/model_1', 'rb'))
     result = loaded_model.predict(predicted_data)
     print(result)
     prediction_by_model["1"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
-    loaded_model = pickle.load(open('./models/knnpickle_file', 'rb'))
+    loaded_model = pickle.load(open('./models/model_2', 'rb'))
     result = loaded_model.predict(predicted_data)
     prediction_by_model["2"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
 
-    loaded_model = pickle.load(open('./models/rfpickle_file', 'rb'))
+    loaded_model = pickle.load(open('./models/model_3', 'rb'))
     result = loaded_model.predict(predicted_data)
     prediction_by_model["3"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
 
-    loaded_model = pickle.load(open('./models/linearSVC_file.pkl', 'rb'))
+    loaded_model = pickle.load(open('./models/model_4.pkl', 'rb'))
     result = loaded_model.predict(predicted_data)
     prediction_by_model["4"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
 
