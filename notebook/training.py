@@ -7,7 +7,9 @@ import pandas as pd
 from sklearn import model_selection
 from sklearn import metrics
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.naive_bayes import GaussianNB, MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn import svm
 
@@ -75,23 +77,23 @@ scaled_result = scaler.transform(result)
 pca = decomposition.PCA(n_components=25)
 pca.fit(scaled_result)
 pca_result = pca.transform(scaled_result)
-# print(pca_result.shape)
 test_size = 0.33
 # seed = 7
 X_train, X_test, Y_train, Y_test = model_selection.train_test_split(pca_result, labels, test_size=test_size,
                                                                     random_state=4)
 print("Test data prepared. Go ahead and train you model")
 
-print("Training using Decision Tree...")
+print("Training using Neural Network...")
 
-model = DecisionTreeClassifier()
+model = MLPClassifier(hidden_layer_sizes=(90, 40, 6), max_iter=100, activation='relu', solver='adam', random_state=1)
 model.fit(X_train, Y_train)
-decision_tree = open('../models/decision_tree', 'wb')
-# source, destination
+y_pred = model.predict(X_test)
+decision_tree = open('../models/model_1', 'wb')
 pickle.dump(model, decision_tree)
 result = model.score(X_test, Y_test)
 
-print("Decision Tree Accuracy: %.3f%%" % (result * 100.0))
+print("Neural Accuracy: %.3f%%" % (metrics.accuracy_score(Y_test, y_pred) * 100))
+
 print("Training Complete")
 
 print("Training using KNeighbour Classifier...")
@@ -119,11 +121,11 @@ print("Training Complete")
 
 print("Training using SVC with linear kernel...")
 
-linearCLF=svm.SVC(kernel='linear');
-linearCLF.fit(X_train, Y_train);
-yPred=linearCLF.predict(X_test);
-linearPickle = open("../models/linearSVC_file.pkl", "wb");
-pickle.dump(linearCLF, linearPickle);
+linearCLF = svm.SVC(kernel='linear')
+linearCLF.fit(X_train, Y_train)
+yPred = linearCLF.predict(X_test)
+linearPickle = open("../models/linearSVC_file.pkl", "wb")
+pickle.dump(linearCLF, linearPickle)
 
-print("Linear SVC Accuracy: %.3f%%" % (metrics.accuracy_score(Y_test, pred) * 100));
+print("Linear SVC Accuracy: %.3f%%" % (metrics.accuracy_score(Y_test, y_pred) * 100));
 print("Training Complete");

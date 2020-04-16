@@ -76,17 +76,17 @@ def get_prediction():
     result = loaded_model.predict(predicted_data)
     print(result)
     prediction_by_model["1"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
-    # loaded_model = pickle.load(open('./models/knnpickle_file', 'rb'))
-    # result = loaded_model.predict(predicted_data)
-    # prediction_by_model["2"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
+    loaded_model = pickle.load(open('./models/knnpickle_file', 'rb'))
+    result = loaded_model.predict(predicted_data)
+    prediction_by_model["2"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
 
     loaded_model = pickle.load(open('./models/rfpickle_file', 'rb'))
     result = loaded_model.predict(predicted_data)
     prediction_by_model["3"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
 
-    # loaded_model = pickle.load(open('logistic_regression_file', 'rb'))
-    # result = loaded_model.predict(csv_data)
-    # prediction_by_model["4"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
+    loaded_model = pickle.load(open('./models/linearSVC_file.pkl', 'rb'))
+    result = loaded_model.predict(predicted_data)
+    prediction_by_model["4"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
 
     response = app.response_class(response=json.dumps(prediction_by_model),
                                   status=200,
