@@ -35,7 +35,7 @@ def json_to_csv(json_data):
 
 
 def get_reduced_bbject(inputObject):
-    column_to_drop = ["Frames#", "score_overall", "nose_score", "leftEye_score", "rightEye_score", "leftEar_score",
+    column_to_drop = ["score_overall", "nose_score", "leftEye_score", "rightEye_score", "leftEar_score",
                       "rightEar_score", "leftShoulder_score", "rightShoulder_score", "leftElbow_score",
                       "rightElbow_score", "leftWrist_score", "rightWrist_score", "leftHip_score", "rightHip_score",
                       "leftKnee_score", "rightKnee_score",
@@ -56,7 +56,7 @@ def get_reduced_bbject(inputObject):
     scaler = preprocessing.StandardScaler()
     scaler.fit(result)
     scaled_result = scaler.transform(result)
-    pca = decomposition.PCA(n_components=25)
+    pca = decomposition.PCA(n_components=14)
     pca.fit(scaled_result)
     pca_result = pca.transform(scaled_result)
     pca_result = pd.DataFrame(pca_result)
@@ -84,7 +84,7 @@ def get_prediction():
     result = loaded_model.predict(predicted_data)
     prediction_by_model["3"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
 
-    loaded_model = pickle.load(open('./models/model_4.pkl', 'rb'))
+    loaded_model = pickle.load(open('./models/model_4', 'rb'))
     result = loaded_model.predict(predicted_data)
     prediction_by_model["4"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
 
