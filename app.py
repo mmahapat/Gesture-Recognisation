@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 from collections import Counter
 import pandas as pd
-from sklearn import decomposition
+from sklearn import decomposition, preprocessing
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
@@ -31,23 +31,28 @@ def json_to_csv(json_data):
             individual_element_data.append(individual_element['position']['x'])
             individual_element_data.append(individual_element['position']['y'])
         csv_values[i] = np.array(individual_element_data)
-    pd.DataFrame(csv_values, columns=column_names)
-    return csv_values
+    return pd.DataFrame(csv_values, columns=column_names)
 
 
 def get_reduced_bbject(inputObject):
+    column_to_drop = ["score_overall", "nose_score", "leftEye_score", "rightEye_score", "leftEar_score",
+                      "rightEar_score",
+                      "leftShoulder_score", "rightShoulder_score", "leftElbow_score", "rightElbow_score",
+                      "leftWrist_score",
+                      "rightWrist_score", "leftHip_score", "rightHip_score", "leftKnee_score", "rightKnee_score",
+                      "leftAnkle_score",
+                      "rightAnkle_score"]
     total_rows = 150
-    result = pickle.load(open('/notebook/pickBeforePca', 'rb'))
+    inputObject.drop(column_to_drop, axis=1, inplace=True)
+    print(inputObject.shape)
+    result = pickle.load(open('./notebook/pickBeforePca', 'rb'))
     result = pd.DataFrame(result)
     while inputObject.shape[0] < total_rows:
         inputObject = inputObject.append(inputObject, ignore_index=True)
     shape = inputObject.shape
     if shape[0] > total_rows:
         inputObject = inputObject[:150]
-
-    print(result.shape)
-    result = result.append(inputObject)
-    print(result.shape)
+    result = result.append(pd.DataFrame(inputObject.values), ignore_index=True)
     scaler = preprocessing.StandardScaler()
     scaler.fit(result)
     scaled_result = scaler.transform(result)
@@ -55,7 +60,6 @@ def get_reduced_bbject(inputObject):
     pca.fit(scaled_result)
     pca_result = pca.transform(scaled_result)
     pca_result = pd.DataFrame(pca_result)
-    print(pca_result.tail(150))
     pca_result = pca_result[-150:]
     return pca_result.values
 
@@ -67,24 +71,27 @@ def get_prediction():
 
     prediction_by_model = {}
     predicted_data = get_reduced_bbject(csv_data)
-    loaded_model = pickle.load(open('logistic_regression_file', 'rb'))
+    print(predicted_data.shape)
+    loaded_model = pickle.load(open('./models/decision_tree', 'rb'))
     result = loaded_model.predict(predicted_data)
-    prediction_by_model["1"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
-    print(prediction_by_model)
     print(result)
-    # loaded_model = pickle.load(open('logistic_regression_file', 'rb'))
-    # result = loaded_model.predict(csv_data)
+    prediction_by_model["1"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
+    # loaded_model = pickle.load(open('./models/knnpickle_file', 'rb'))
+    # result = loaded_model.predict(predicted_data)
     # prediction_by_model["2"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
-    #
-    # loaded_model = pickle.load(open('knnpickle_file', 'rb'))
-    # result = loaded_model.predict(csv_data)
-    # prediction_by_model["3"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
-    #
+
+    loaded_model = pickle.load(open('./models/rfpickle_file', 'rb'))
+    result = loaded_model.predict(predicted_data)
+    prediction_by_model["3"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
+
     # loaded_model = pickle.load(open('logistic_regression_file', 'rb'))
     # result = loaded_model.predict(csv_data)
     # prediction_by_model["4"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
 
-    return jsonify(prediction_by_model)
+    response = app.response_class(response=json.dumps(prediction_by_model),
+                                  status=200,
+                                  mimetype='application/json')
+    return response
 
 
 if __name__ == '__main__':
