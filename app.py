@@ -35,28 +35,54 @@ def json_to_csv(json_data):
     return csv_values
 
 
+def get_reduced_bbject(inputObject):
+    total_rows = 150
+    result = pickle.load(open('/notebook/pickBeforePca', 'rb'))
+    result = pd.DataFrame(result)
+    while inputObject.shape[0] < total_rows:
+        inputObject = inputObject.append(inputObject, ignore_index=True)
+    shape = inputObject.shape
+    if shape[0] > total_rows:
+        inputObject = inputObject[:150]
+
+    print(result.shape)
+    result = result.append(inputObject)
+    print(result.shape)
+    scaler = preprocessing.StandardScaler()
+    scaler.fit(result)
+    scaled_result = scaler.transform(result)
+    pca = decomposition.PCA(n_components=25)
+    pca.fit(scaled_result)
+    pca_result = pca.transform(scaled_result)
+    pca_result = pd.DataFrame(pca_result)
+    print(pca_result.tail(150))
+    pca_result = pca_result[-150:]
+    return pca_result.values
+
+
 @app.route('/getPrediction', methods=['POST'])
 def get_prediction():
     csv_data = json_to_csv(request.json)
     label_to_category = {0: "buy", 1: "communicate", 2: "fun", 3: "hope", 4: "mother", 5: "really"}
 
     prediction_by_model = {}
-
+    predicted_data = get_reduced_bbject(csv_data)
     loaded_model = pickle.load(open('logistic_regression_file', 'rb'))
-    result = loaded_model.predict(csv_data)
+    result = loaded_model.predict(predicted_data)
     prediction_by_model["1"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
-
-    loaded_model = pickle.load(open('logistic_regression_file', 'rb'))
-    result = loaded_model.predict(csv_data)
-    prediction_by_model["2"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
-
-    loaded_model = pickle.load(open('knnpickle_file', 'rb'))
-    result = loaded_model.predict(csv_data)
-    prediction_by_model["3"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
-
-    loaded_model = pickle.load(open('logistic_regression_file', 'rb'))
-    result = loaded_model.predict(csv_data)
-    prediction_by_model["4"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
+    print(prediction_by_model)
+    print(result)
+    # loaded_model = pickle.load(open('logistic_regression_file', 'rb'))
+    # result = loaded_model.predict(csv_data)
+    # prediction_by_model["2"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
+    #
+    # loaded_model = pickle.load(open('knnpickle_file', 'rb'))
+    # result = loaded_model.predict(csv_data)
+    # prediction_by_model["3"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
+    #
+    # loaded_model = pickle.load(open('logistic_regression_file', 'rb'))
+    # result = loaded_model.predict(csv_data)
+    # prediction_by_model["4"] = label_to_category[int(Counter(result).most_common(1)[0][0])]
 
     return jsonify(prediction_by_model)
 
