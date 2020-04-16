@@ -9,6 +9,7 @@ from sklearn import metrics
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
+from sklearn import svm
 
 master_path = '../CSV'
 labels = numpy.empty((0, 0))
@@ -115,3 +116,14 @@ pickle.dump(rf, rfPickle)
 
 print("Random Forest Accuracy: %.3f%%" % (metrics.accuracy_score(Y_test, y_pred) * 100))
 print("Training Complete")
+
+print("Training using SVC with linear kernel...")
+
+linearCLF=svm.SVC(kernel='linear');
+linearCLF.fit(X_train, Y_train);
+yPred=linearCLF.predict(X_test);
+linearPickle = open("../models/linearSVC_file.pkl", "wb");
+pickle.dump(linearCLF, linearPickle);
+
+print("Linear SVC Accuracy: %.3f%%" % (metrics.accuracy_score(Y_test, pred) * 100));
+print("Training Complete");
