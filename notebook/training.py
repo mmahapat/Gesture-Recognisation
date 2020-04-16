@@ -127,4 +127,4 @@ linearPickle = open("../models/model_4", "wb")
 pickle.dump(linearCLF, linearPickle)
 
 print("Linear SVC Accuracy: %.3f%%" % (metrics.accuracy_score(Y_test, y_pred) * 100));
-print("Training Complete");
+print("Training Complete")
